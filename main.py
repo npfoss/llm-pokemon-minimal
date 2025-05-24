@@ -1,5 +1,7 @@
 from pyboy import PyBoy
 
+max_steps = 5
+
 
 class PBWrapper:
     def __init__(self):
@@ -50,7 +52,9 @@ def main():
     game = PBWrapper()
     game.initialize()
 
-    while True:
+    steps = 0
+    while steps < max_steps:
+        steps += 1
         try:
             print("next move?", end=' ')
             move = input()
