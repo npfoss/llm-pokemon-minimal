@@ -1,9 +1,9 @@
 from pyboy import PyBoy
 from PIL import Image
 
-# choose which LLM you want to test
-# from human import get_llm_response
-from claude import get_llm_response
+# *** choose which LLM you want to test ***
+from human import get_llm_response # this is you
+# from claude import get_llm_response
 
 max_steps = 5
 num_screenshots = 5

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def get_llm_response(system_prompt, screenshots, prompt, prefill="next move?"):
     print(system_prompt)
 
-    # all this is jsut to render the latest screenshot
+    # all this is just to render the latest screenshot
     plt.imshow(np.array(screenshots[-1]))
     plt.axis('off')  # Turn off axis numbers and ticks
     plt.gcf().canvas.manager.set_window_title("current screen")
