@@ -19,8 +19,9 @@ def get_llm_response(system_prompt, screenshots, prompt, prefill):
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
         temperature=0.0,
-        max_tokens=10,
+        max_tokens=25,
         system=system_prompt,
+        stop_sequences=["\n\nN", "\nA"],
         messages=[
             {
                 "role": "user",
@@ -42,7 +43,8 @@ def get_llm_response(system_prompt, screenshots, prompt, prefill):
             {"role": "assistant", "content": prefill},
         ]
     )
-    print(message.content)
     if len(message.content) > 1:
+        print(message.content)
         raise Exception("haven't implementated a way to handle multiple contents returned yet! oh no")
+    print('[system] model output:', message.content[0].text)
     return message.content[0].text

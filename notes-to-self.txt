@@ -1,0 +1,32 @@
+# current issues
+
+claude keeps halucinating in the log and ignoring the screenshots
+
+
+# misc ideas
+
+- main loop could be:
+	- scratchpad + last N moves + system prompt + "did what just happened materially affect what I should have written in my scratchpad?"
+		- if yes, rewrite scratchpad
+	- scratchpad + last N moves (+deletion warning) + system prompt + 'output one-line summary of situation, next move (options [...])'
+	- ^repeat
+	- maybe it's allowed to have a CoT before outputting the output
+- system prompt ideas
+	- this is a log and scratchpad of someone meticulously documenting their pokemon playthrough. it's their first time but they're very smart
+	- you are a state of the art AI, here is your scratchpad and recent moves, or something like that
+
+
+
+when the log gets too long
+"(N log messages hidden. The next two lines will be deleted shortly)"
+
+
+
+Maybe one of the actions is just "update scratchpad" and that prompts that flow, and it can just do it whenever as a normal action.
+And there's an example of it being used sparingly in the initial logs 
+
+
+
+claude notes
+- starting to think I should interleave 'user' and 'assistant' messages, where the screenshots are user and summaries + moves are assistant
+    - I don't think gemini can do this though so maybe not
