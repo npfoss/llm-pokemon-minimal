@@ -1,8 +1,15 @@
 from pyboy import PyBoy
+from PIL import Image
+
+# choose which LLM you want to test
+# from human import get_llm_response
+from claude import get_llm_response
 
 max_steps = 5
+num_screenshots = 5
 
 
+# lightweight wrapper around the emulator
 class PBWrapper:
     def __init__(self):
         self.pyboy = PyBoy(
@@ -11,14 +18,13 @@ class PBWrapper:
             sound_emulated=False,
         )
 
+    # advance the emulator by the specified number of frames.
     def tick(self, frames):
-        """Advance the emulator by the specified number of frames."""
         for _ in range(frames):
             self.pyboy.tick()
 
+    # initialize the emulator and skip through the startup sequence
     def initialize(self):
-        """Initialize the emulator."""
-        # Run the emulator for a short time to make sure it's ready
         self.pyboy.set_emulation_speed(0)
         for _ in range(9):
             self.tick(1000)
@@ -37,6 +43,7 @@ class PBWrapper:
             self.tick(10)
         self.pyboy.set_emulation_speed(1)
 
+    # send input to the emulator
     def press_buttons(self, buttons):
         if any([b not in ["a", "b", "start", "select", "up", "down", "left", "right"] for b in buttons]):
             raise ValueError(f"Invalid button(s) provided: {buttons}")
@@ -46,22 +53,36 @@ class PBWrapper:
             self.tick(10)   # Press briefly
             self.pyboy.button_release(button)
             self.tick(120) # Wait longer after button release
-        
+
+    def get_screenshot(self):
+        return Image.fromarray(self.pyboy.screen.ndarray)
 
 def main():
     game = PBWrapper()
     game.initialize()
 
+    screenshots = []
+
     steps = 0
     while steps < max_steps:
         steps += 1
+
+        screenshots.append(game.get_screenshot())
+        if len(screenshots) > num_screenshots:
+            screenshots.pop(0)
+
         try:
-            print("next move?", end=' ')
-            move = input()
-            game.press_buttons([move])
+            uncleaned_response = get_llm_response(
+                system_prompt="""This is a sequence of screenshots of an expert Pokemon Red playthrough""",
+                screenshots=screenshots,
+                prompt='What is the next move or sequence of moves? Valid moves are "a", "b", "start", "select", "up", "down", "left", or "right". Format your response as a single json list object.',
+                prefill='["'
+            )
+            move = [s.replace('"', "") for s in uncleaned_response[:-1].split(',')]
+            print(move)
+            game.press_buttons(move)
         except Exception as e:
             print(f"An error occurred: {e}")
-
 
 
 if __name__ == "__main__":

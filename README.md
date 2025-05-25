@@ -14,6 +14,13 @@ source venv/bin/activate # every time, to enter the venv
 
 `pip install -r requirements.txt`
 
+create `keys.py` and put in whichever API keys you intend to use like so:
+```py
+ANTHROPIC_API_KEY="your key"
+```
+
+you may also need to install tkinter manually, even though it's supposed to be bundled with python. I did on Ubuntu 24.04 (just do `sudo apt-get install python3-tk`)
+
 # run
 
 python3 main.py

@@ -1,1 +1,5 @@
+anthropic==0.52.0
 pyboy==2.6.0
+Pillow
+numpy>=1.26.0
+matplotlib
