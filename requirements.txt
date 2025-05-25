@@ -1,4 +1,5 @@
 anthropic==0.52.0
+google-genai==1.16.1
 pyboy==2.6.0
 Pillow
 numpy>=1.26.0

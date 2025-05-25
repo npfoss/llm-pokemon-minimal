@@ -21,7 +21,7 @@ def get_llm_response(system_prompt, screenshots, prompt, prefill):
         temperature=0.0,
         max_tokens=25,
         system=system_prompt,
-        stop_sequences=["\n\nN", "\nA"],
+        stop_sequences=["\n\nN", "\nA", "\nN"],
         messages=[
             {
                 "role": "user",

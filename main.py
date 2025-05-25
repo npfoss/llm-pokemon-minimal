@@ -1,11 +1,13 @@
 from pyboy import PyBoy
 from PIL import Image
+from time import sleep
 
 # *** choose which LLM you want to test ***
 from human import get_llm_response # this is you
 # from claude import get_llm_response
+# from gemini import get_llm_response
 
-max_steps = 20
+max_steps = 30
 num_screenshots = 8
 
 
@@ -38,7 +40,7 @@ class PBWrapper:
             self.tick(10)
         self.press_buttons(['down'])
         self.tick(10)
-        for _ in range(10):
+        for _ in range(9):
             self.press_buttons(['a'])
             self.tick(10)
         self.pyboy.set_emulation_speed(1)
@@ -93,7 +95,7 @@ def main():
         'Action(s): ["a"]',
         'Note: partial dialogue',
         'Action(s): ["a"]',
-        'Note: I should explore the town',
+        'Note: says I should explore the town',
         'Action(s): ["a"]',
         'Note: game is about to start',
         'Action(s): ["a"]',
@@ -111,10 +113,9 @@ They are very unfamiliar with the details of the game at first, but doing their 
 Sometimes they don't know what to do next, and simply wander around to understand the world better for a little while.
 
 Their text notes always follow the following format:
-```txt
 Note: [brief note on their immediate scene any anything relevant or noteworthy that happened. Never more than ~25 words at most, usually shorter.]
 Action(s) taken: [list of actions they took immediately after recording the note above]
-```
+
 These notes are based purely on the screenshots included with the log, and pertain exactly and solely to what they can see at the time of the note, nothing else. They never write what they expect the state to be or wish it was, only what they currently see on the screen, if it's noteworthy, or nothing at all.
 Sometimes past notes are inaccurate, and they may correct themselves in future notes, or just keep going.
 Their notes often express uncertainty, like "don't know how to get to the destination" or "what is this thing?", as they never assume they know what's going on until they see it in a screenshot.
@@ -139,6 +140,8 @@ Valid actions are gameboy buttons "a", "b", "start", "select", "up", "down", "le
             )
             if(len(note_response) > 280):
                 raise Exception('note too long', note_response)
+            if(note_response.startswith("####")):
+                raise Exception('gemini tried to end the log again', note_response)
             log.append(note_prefill + note_response)
 
             # retry actions in case of failure
@@ -161,6 +164,7 @@ Valid actions are gameboy buttons "a", "b", "start", "select", "up", "down", "le
                     print(f"An error occurred: {e}")
         except Exception as e:
             print(f"An error occurred: {e}")
+            sleep(5)
 
 
 if __name__ == "__main__":
