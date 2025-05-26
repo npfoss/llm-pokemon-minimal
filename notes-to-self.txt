@@ -1,6 +1,17 @@
+# current state
+
+- Claude 4 Opus and Gemini Pro 2.5 can't even go down the first stairs, not in this scaffold or if I just chat via the UI with screenshots ("I'm just starting my first game of pokemon, an unreleased version for the GBA. Here's what I see so far. Don't give any hints or spoil the game for me, just recommend which actions to take to progress (like ["down", "up", "left", "right"] or other gameboy controls). What buttons should I press next?")
+	- chat also failing gives me some reassurance that it's not just my ameteur prompting / this scaffold's failure to frame it as the user+assistant modality it's trained for
+	- Opus even saw the stairs in the chat test and still didn't go for them
+- o3 mostly worked in chat mode above! but takes several minutes per move
+- Operator totally fails
+
+
 # current issues
 
-claude keeps halucinating in the log and ignoring the screenshots
+- claude keeps halucinating in the log and ignoring the screenshots
+- giving screenshots to gemini and asking things like "what is the player facing?" it says wrong things (https://gemini.google.com/u/0/app/34453716d633d996)
+	- claude gets it though
 
 
 # misc ideas
@@ -16,17 +27,29 @@ claude keeps halucinating in the log and ignoring the screenshots
 	- you are a state of the art AI, here is your scratchpad and recent moves, or something like that
 
 
-
 when the log gets too long
 "(N log messages hidden. The next two lines will be deleted shortly)"
-
 
 
 Maybe one of the actions is just "update scratchpad" and that prompts that flow, and it can just do it whenever as a normal action.
 And there's an example of it being used sparingly in the initial logs 
 
 
-
 claude notes
 - starting to think I should interleave 'user' and 'assistant' messages, where the screenshots are user and summaries + moves are assistant
     - I don't think gemini can do this though so maybe not
+
+
+computer use demo looks pretty similar to what I have tbh: https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo
+(and also doesn't seem to work great)
+
+
+idea: put at the top: "steps to first badge: [low N]" etc so it thinks it's a good playthrough
+
+
+removed all the notes to self because they just hallucinate and go off the rails. maybe need to add it back later but they're not long range enough yet
+
+
+new stuff to try:
+- maybe no action log? but then it might not be able to tell what's impassible
+- add openai api, worth testing if my scaffold works with o3 via API or if there's something special about chat. also test o4-mini etc

@@ -22,12 +22,12 @@ def get_llm_response(system_prompt, screenshots, prompt, prefill):
         model='gemini-2.5-pro-preview-05-06',
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
-            temperature=0.0,
-            max_output_tokens=2100, # tricky because it spends tokens thinking and then runs out before outputting
+            temperature=0.1,
+            max_output_tokens=10000, # tricky because it spends tokens thinking and then runs out before outputting
             # config=types.GenerateContentConfig(
             #     thinking_config=types.ThinkingConfig(thinking_budget=512)
             # ), # this is supposed to work and doesn't for some reason, idk https://ai.google.dev/gemini-api/docs/thinking#set-budget
-            stop_sequences=["\n\nN", "\nA", "\nN", "\n#", "."],
+            stop_sequences=["\n", "]"],
         ),
         contents=[
             types.Part.from_bytes(
@@ -36,6 +36,8 @@ def get_llm_response(system_prompt, screenshots, prompt, prefill):
             ) for img in base64_screenshots
         ] + [{"text": prompt + '\n' + prefill}],
     )
+    if(not message.text):
+        print(message)
     output = message.text[len(prefill):] if message.text.startswith(prefill) else message.text
     print('[system] model output:', output)
     return output

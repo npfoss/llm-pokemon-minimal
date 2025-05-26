@@ -17,11 +17,11 @@ def get_llm_response(system_prompt, screenshots, prompt, prefill):
         base64_screenshots.append(base64.standard_b64encode(buffered.getvalue()).decode())
 
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        temperature=0.0,
+        model="claude-opus-4-20250514",
+        temperature=0.1,
         max_tokens=25,
         system=system_prompt,
-        stop_sequences=["\n\nN", "\nA", "\nN"],
+        stop_sequences=["\n\nN", "\nA", "\nN", "\n["],
         messages=[
             {
                 "role": "user",

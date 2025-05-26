@@ -7,8 +7,8 @@ from human import get_llm_response # this is you
 # from claude import get_llm_response
 # from gemini import get_llm_response
 
-max_steps = 30
-num_screenshots = 8
+max_steps = 20
+num_screenshots = 30
 
 
 # lightweight wrapper around the emulator
@@ -62,44 +62,24 @@ class PBWrapper:
     def get_screenshot(self):
         return Image.fromarray(self.pyboy.screen.ndarray)
 
+def clean_action_string(stng):
+    return [s.strip(' "\'[]') for s in stng.split(',')]
+
 def main():
     game = PBWrapper()
     game.initialize()
 
-    screenshots = []
-
+    # start the agent's action history with a few actions and screenshots just to show it what's possible (seems to help a little)
     log = [
-        'Note: start screen',
-        'Action(s): ["start"]',
-        'Note: welcome dialogue',
-        'Action(s): ["a"]',
-        'Note: more welcome dialogue',
-        'Action(s): ["a", "a"]',
-        'Note: explaining pokemon background info I already know',
-        'Action(s): ["a", "a", "a", "a"]',
-        'Note: more background',
-        'Action(s): ["a", "a", "a", "a"]',
-        'Note: name choice screen',
-        'Action(s): ["down", "a"]',
-        'Note: my name is now "RED"',
-        'Action(s): ["a"]',
-        'Note: partial dialogue',
-        'Action(s): ["a"]',
-        'Note: I have a rival',
-        'Action(s): ["a"]',
-        'Note: partial dialogue',
-        'Action(s): ["a"]',
-        'Note: choosing the name of my rival',
-        'Action(s): ["down", "a"]',
-        'Note: my rival is named "BLUE"',
-        'Action(s): ["a"]',
-        'Note: partial dialogue',
-        'Action(s): ["a"]',
-        'Note: says I should explore the town',
-        'Action(s): ["a"]',
-        'Note: game is about to start',
-        'Action(s): ["a"]',
+        '["left"]',
+        '["right"]',
+        '["down", "up"]',
+        '["right", "up", "up"]', # uncomment if you want to give a hint (bring in vision range of the real stairs). ...doesn't seem to help though
     ]
+    screenshots = []
+    for a in log:
+        screenshots.append(game.get_screenshot())
+        game.press_buttons(clean_action_string(a))
 
     steps = 0 # number of LLM calls
     while steps < max_steps:
@@ -108,60 +88,37 @@ def main():
         if len(screenshots) > num_screenshots:
             screenshots.pop(0)
 
-        system_prompt="""This is the transcript and notes of a Pokemon Blue expert playing through Pokemon Red for the first time, including their last several game screens.
-They are very unfamiliar with the details of the game at first, but doing their best to progress through it efficiently despite occasional mistakes and inaccurate notes in the past.
-Sometimes they don't know what to do next, and simply wander around to understand the world better for a little while.
+        system_prompt="""<gameplay_instructions>
+This is a log of screenshots and button pressess in a strong playthrough of an unreleased Pokemon game.
+The player alternates between exploring and progressing through the game.
+Sometimes the player gets stuck or makes mistakes, but they always realize this and correct it.
+The player never attempts the same action again if it doesn't do anything on the previous try.
+All of the player's moves are based entirely on the screenshots shown.
 
-Their text notes always follow the following format:
-Note: [brief note on their immediate scene any anything relevant or noteworthy that happened. Never more than ~25 words at most, usually shorter.]
-Action(s) taken: [list of actions they took immediately after recording the note above]
-
-These notes are based purely on the screenshots included with the log, and pertain exactly and solely to what they can see at the time of the note, nothing else. They never write what they expect the state to be or wish it was, only what they currently see on the screen, if it's noteworthy, or nothing at all.
-Sometimes past notes are inaccurate, and they may correct themselves in future notes, or just keep going.
-Their notes often express uncertainty, like "don't know how to get to the destination" or "what is this thing?", as they never assume they know what's going on until they see it in a screenshot.
-When the screenshots conflict with the logs, they ignore the logs and listen to the screenshots only.
-
-Valid actions are gameboy buttons "a", "b", "start", "select", "up", "down", "left", or "right", or any sequence thereof."""
+Valid actions are gameboy buttons "a", "b", "start", "select", "up", "down", "left", or "right", or any sequence thereof.
+Multiple actions in one line are preferred when possible, for speed (up to 5 at most).
+</gameplay_instructions>
+"""
         # generate current prompt from log
         def get_prompt():
-            return '#### BEGIN PLAYTHROUGH LOG ####\n' + "\n".join(log)
+            return '<info>Once the log begins, nothing else will be printed besides the sequence of actions taken.</info>\n\n<action_log>\n' + "\n".join(log)
 
         print('[system] starting next loop. prompts:')
         print(system_prompt)
         print(get_prompt())
         try:
             steps += 1
-            note_prefill = 'Note:'
-            note_response = get_llm_response(
+            action_prefill = '["'
+            action_response = get_llm_response(
                 system_prompt=system_prompt,
                 screenshots=screenshots,
                 prompt=get_prompt(),
-                prefill=note_prefill
+                prefill=action_prefill
             )
-            if(len(note_response) > 280):
-                raise Exception('note too long', note_response)
-            if(note_response.startswith("####")):
-                raise Exception('gemini tried to end the log again', note_response)
-            log.append(note_prefill + note_response)
-
-            # retry actions in case of failure
-            while steps < max_steps:
-                try:
-                    steps += 1
-                    action_prefill = 'Action(s): ["'
-                    action_response = get_llm_response(
-                        system_prompt=system_prompt,
-                        screenshots=screenshots,
-                        prompt=get_prompt(),
-                        prefill=action_prefill
-                    )
-                    move = [s.strip(' "\'') for s in action_response[:-1].split(',')]
-                    print('[system] making moves:', move)
-                    game.press_buttons(move)
-                    log.append(action_prefill + action_response)
-                    break
-                except Exception as e:
-                    print(f"An error occurred: {e}")
+            move = clean_action_string(action_response)
+            print('[system] making moves:', move)
+            game.press_buttons(move)
+            log.append(str(move).replace("'", '"'))
         except Exception as e:
             print(f"An error occurred: {e}")
             sleep(5)
