@@ -53,3 +53,8 @@ removed all the notes to self because they just hallucinate and go off the rails
 new stuff to try:
 - maybe no action log? but then it might not be able to tell what's impassible
 - add openai api, worth testing if my scaffold works with o3 via API or if there's something special about chat. also test o4-mini etc
+- be more explicit about stuff like "first understand the scene and then decide a medium term plan and then give me the actions you want to take
+- go deeper on other scaffolds to see if a better prompt could unlock more (already skimmed these but they really emphasized tool use so I thought there wasn't much to copy after the first pass)
+  - https://github.com/alexzhang13/videogamebench/blob/c7ce8144d562e1940276eb81f4df6b4885e3a11f/src/llm/prompts.py / https://github.com/alexzhang13/videogamebench/blob/c7ce8144d562e1940276eb81f4df6b4885e3a11f/configs/pokemon_red/prompt.txt
+  - https://www.lesswrong.com/posts/Qk3kCb68NvKBayHZB
+  - the two twitch streams
