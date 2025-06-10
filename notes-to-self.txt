@@ -58,3 +58,15 @@ new stuff to try:
   - https://github.com/alexzhang13/videogamebench/blob/c7ce8144d562e1940276eb81f4df6b4885e3a11f/src/llm/prompts.py / https://github.com/alexzhang13/videogamebench/blob/c7ce8144d562e1940276eb81f4df6b4885e3a11f/configs/pokemon_red/prompt.txt
   - https://www.lesswrong.com/posts/Qk3kCb68NvKBayHZB
   - the two twitch streams
+- Prompt the right chain of thought. Like:
+"""
+First describe the context of the situation based on the previous screenshots and action log, then what the optimal medium term goal is, then the best move to make given those considerations.
+
+Example output:
+<thinking>
+It appears that I have been pressing up without the screen changing, so this must be impassable and I should try a different direction. I don't see any obvious landmarks so I must be on my way somewhere, I should try to keep going in the same general direction and see where that leads.
+</thinking>
+<actions>
+right, right
+</actions>
+"""
